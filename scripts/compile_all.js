@@ -6,7 +6,7 @@ const circuits = [
     'test_multi_5'
 ];
 
-const ptauFile = 'pot14_final.ptau';
+const ptauFile = 'pot15_final.ptau';
 
 for (const circuit of circuits) {
     try {

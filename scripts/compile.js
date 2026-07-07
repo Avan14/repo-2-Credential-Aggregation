@@ -19,9 +19,10 @@ try {
 
     if (!fs.existsSync(ptauPath)) {
         console.log(`Generating Powers of Tau (${ptauFile}) as it does not exist...`);
-        execSync(`npx snarkjs powersoftau new bn128 14 pot14_0000.ptau -v`, { cwd: circuitsDir, stdio: 'inherit' });
-        execSync(`npx snarkjs powersoftau contribute pot14_0000.ptau pot14_0001.ptau --name="First contribution" -v`, { cwd: circuitsDir, stdio: 'inherit' });
-        execSync(`npx snarkjs powersoftau prepare phase2 pot14_0001.ptau ${ptauFile} -v`, { cwd: circuitsDir, stdio: 'inherit' });
+        const power = ptauFile.match(/pot(\d+)_final/)[1];
+        execSync(`npx snarkjs powersoftau new bn128 ${power} pot${power}_0000.ptau -v`, { cwd: circuitsDir, stdio: 'inherit' });
+        execSync(`echo "randomness" | npx snarkjs powersoftau contribute pot${power}_0000.ptau pot${power}_0001.ptau --name="First contribution" -v`, { cwd: circuitsDir, stdio: 'inherit' });
+        execSync(`npx snarkjs powersoftau prepare phase2 pot${power}_0001.ptau ${ptauFile} -v`, { cwd: circuitsDir, stdio: 'inherit' });
     }
 
     console.log(`Compiling ${circuitName}...`);
@@ -31,7 +32,7 @@ try {
     execSync(`npx snarkjs groth16 setup ${circuitName}.r1cs ${ptauFile} ${circuitName}_0000.zkey`, { cwd: circuitsDir, stdio: 'inherit' });
 
     console.log("Contributing to phase 2...");
-    execSync(`npx snarkjs zkey contribute ${circuitName}_0000.zkey ${circuitName}_0001.zkey --name="Second contribution" -v`, { cwd: circuitsDir, stdio: 'inherit' });
+    execSync(`echo "randomness" | npx snarkjs zkey contribute ${circuitName}_0000.zkey ${circuitName}_0001.zkey --name="Second contribution" -v`, { cwd: circuitsDir, stdio: 'inherit' });
 
     console.log("Exporting verification key...");
     execSync(`npx snarkjs zkey export verificationkey ${circuitName}_0001.zkey ${circuitName}_vkey.json`, { cwd: circuitsDir, stdio: 'inherit' });
